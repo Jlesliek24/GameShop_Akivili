@@ -10,14 +10,14 @@ import {
   TouchableOpacity,
   Linking
 } from 'react-native';
-import { GAMESPOT_API_KEY } from '@env';
+const GAMESPOT_API_KEY = process.env.GAMESPOT_API_KEY;
 console.log('🔑 GAMESPOT_API_KEY is:', GAMESPOT_API_KEY);
 
 type Article = {
-  id: string;
+  id: string | number;
   title: string;
   deck: string;
-  image: { icon_url: string };
+  image?: { icon_url?: string } | null;
   publish_date: string;
   site_detail_url: string;
 };
@@ -91,9 +91,9 @@ export default function News() {
       style={styles.card}
       onPress={() => Linking.openURL(item.site_detail_url)}
     >
-      {item.image?.icon_url && (
+      {item.image && item.image.icon_url ? (
         <Image source={{ uri: item.image.icon_url }} style={styles.thumbnail} />
-      )}
+      ) : null}
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.deck} numberOfLines={2}>
@@ -109,7 +109,7 @@ export default function News() {
   return (
     <FlatList
       data={articles}
-      keyExtractor={item => item.id}
+      keyExtractor={item => String(item.id)}
       renderItem={renderItem}
       contentContainerStyle={styles.list}
     />
