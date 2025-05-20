@@ -15,20 +15,14 @@ export default function UserMain() {
   return (
     <Stack.Navigator
       initialRouteName="Splash"
-      screenOptions={{
-        headerShown: false,
-        animation: 'fade',
-      }}
+      screenOptions={{ headerShown: false, animation: 'fade' }}
     >
       <Stack.Screen name="Splash"          component={Splash} />
       <Stack.Screen name="Login"           component={Login} />
       <Stack.Screen name="Signup"          component={Signup} />
       <Stack.Screen name="ForgotPass"      component={ForgotPass} />
       <Stack.Screen name="ChangePass"      component={ChangePass} />
-      <Stack.Screen 
-        name="CustomerService"  
-        component={CustomerService} 
-      />
+      <Stack.Screen name="CustomerService" component={CustomerService} />
     </Stack.Navigator>
   );
 }

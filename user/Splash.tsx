@@ -2,16 +2,12 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
 
-type Props = {
-  navigation: any;
-};
+type Props = { navigation: any };
 
 export default function Splash({ navigation }: Props) {
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      navigation.replace('Login');
-    }, 2000);
-    return () => clearTimeout(timeout);
+    const t = setTimeout(() => navigation.replace('Login'), 2000);
+    return () => clearTimeout(t);
   }, [navigation]);
 
   return (
@@ -29,21 +25,9 @@ const PRIMARY = '#FFA800';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: PRIMARY,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    flex: 1, backgroundColor: PRIMARY,
+    alignItems: 'center', justifyContent: 'center', padding: 20,
   },
-  logo: {
-    fontSize: 48,
-    fontWeight: '900',
-    color: '#FFF',
-    marginBottom: 12,
-  },
-  tagline: {
-    fontSize: 16,
-    color: '#FFF',
-    textAlign: 'center',
-  },
+  logo:    { fontSize: 48, fontWeight: '900', color: '#FFF', marginBottom: 12 },
+  tagline: { fontSize: 16, color: '#FFF', textAlign: 'center' },
 });
