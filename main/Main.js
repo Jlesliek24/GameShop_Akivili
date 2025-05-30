@@ -16,7 +16,7 @@ export default function MainTabs() {
         headerShown: false,
         tabBarActiveTintColor: '#FFA800',
         tabBarInactiveTintColor: '#999',
-        tabBarStyle: { height: 60, paddingBottom: 6, paddingTop: 6 },
+        tabBarStyle: { height: 100, paddingBottom: 6, paddingTop: 6 },
         tabBarIcon: ({ color, size }) => {
           switch (route.name) {
             case 'Home':
