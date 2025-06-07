@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "TopUp",
+    "scheme": "GameShop_Akivili",
     "slug": "TopUp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,10 +21,17 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.jlork.TopUp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "78468262-d642-42da-aba1-d367158e806b"
+      }
+    },
+    "owner": "jlork"
   }
 }

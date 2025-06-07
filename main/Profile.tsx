@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   StyleSheet
 } from 'react-native';
-import avatarIcon from '../assets/user-icon.png';
 
 type Props = {
   navigation: any;
@@ -40,7 +39,10 @@ export default function Profile({ navigation }: Props) {
       <View style={styles.profile}>
         <View style={styles.avatarWrapper}>
           <View style={styles.avatarCircle}>
-            <Image source={avatarIcon} style={styles.avatarIcon} />
+            <Image
+              source={require('../assets/user-icon.png')}
+              style={styles.avatarIcon}
+            />
           </View>
         </View>
         <Text style={styles.greeting}>
