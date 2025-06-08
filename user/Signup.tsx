@@ -1,28 +1,51 @@
-// src/user/Signup.tsx
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, StatusBar, Alert
 } from 'react-native';
-import * as AuthSession      from 'expo-auth-session';
-import { supabase }          from './supabaseClient';
+import * as AuthSession from 'expo-auth-session';
+import { supabase } from './supabaseClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = { navigation: any };
 
+const PRIMARY = '#FFA800';
+
 export default function Signup({ navigation }: Props) {
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const onRegister = async () => {
+    setLoading(true);
+    // Mendapatkan redirect URI (default, sesuai Expo)
     const redirectUri = AuthSession.makeRedirectUri();
+
+    // 1. Daftarkan user ke Supabase Auth
     const { data, error } = await supabase.auth.signUp({
-      email, password,
+      email,
+      password,
       options: { emailRedirectTo: redirectUri },
     });
-    if (error) return Alert.alert('Register failed', error.message);
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Register failed', error.message);
+      return;
+    }
+
+    // 2. Simpan username sementara di AsyncStorage
+    try {
+      await AsyncStorage.setItem('pending-username', username);
+    } catch (e) {
+      // Bisa ditambahkan log error, jika ingin
+    }
+
     Alert.alert(
       'Cek Emailmu',
-      'Kami telah mengirim link verifikasi, silakan klik untuk konfirmasi.'
+      'Kami telah mengirim link verifikasi, silakan klik untuk konfirmasi sebelum login.'
     );
     navigation.replace('Login');
   };
@@ -42,22 +65,32 @@ export default function Signup({ navigation }: Props) {
 
       <TextInput
         style={styles.input}
+        placeholder="USERNAME"
+        placeholderTextColor="#999"
+        autoCapitalize="none"
+        value={username}
+        onChangeText={setUsername}
+      />
+      <TextInput
+        style={styles.input}
         placeholder="EMAIL"
         placeholderTextColor="#999"
         keyboardType="email-address"
         autoCapitalize="none"
-        value={email} onChangeText={setEmail}
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="PASSWORD"
         placeholderTextColor="#999"
         secureTextEntry
-        value={password} onChangeText={setPassword}
+        value={password}
+        onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={onRegister}>
-        <Text style={styles.buttonTxt}>DAFTAR</Text>
+      <TouchableOpacity style={styles.button} onPress={onRegister} disabled={loading}>
+        <Text style={styles.buttonTxt}>{loading ? 'Loading...' : 'DAFTAR'}</Text>
       </TouchableOpacity>
 
       <View style={styles.switchRow}>
@@ -69,8 +102,6 @@ export default function Signup({ navigation }: Props) {
     </View>
   );
 }
-
-const PRIMARY = '#FFA800';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF', padding: 20 },

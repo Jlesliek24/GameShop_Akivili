@@ -1,29 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator,
 } from 'react-native';
 import { Headphones } from 'lucide-react-native';
-import { supabase } from './supabaseClient'; // <--- import supabase
+import { supabase } from './supabaseClient';
 import GoogleLoginButton from './GoogleLoginButton';
 import GithubLoginButton from './GithubLoginButton';
 
 const PRIMARY = '#FFA800';
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = useState('');
+  // Use credential (can be email or username)
+  const [credential, setCredential] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Optionally, listen for auth state changes here or in Splash/root
-
   const onLogin = async () => {
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    let emailToLogin = credential;
+
+    // If input doesn't look like an email, treat it as a username
+    if (!credential.includes('@')) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('display_name', credential) // change 'display_name' if your username field is named differently
+        .maybeSingle();
+
+      if (error || !data) {
+        setError('Username/email tidak ditemukan');
+        setLoading(false);
+        return;
+      }
+      emailToLogin = data.email;
+    }
+
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: emailToLogin,
+      password,
+    });
+
     setLoading(false);
-    if (error) setError(error.message);
-    else navigation.replace('App'); // If login is successful
+    if (loginError) setError(loginError.message);
+    else navigation.replace('App');
   };
 
   return (
@@ -37,16 +59,15 @@ export default function Login({ navigation }) {
       </View>
 
       <Text style={styles.title}>Login Member</Text>
-      <Text style={styles.subtitle}>Masuk menggunakan akun yang sudah terdaftar.</Text>
+      <Text style={styles.subtitle}>Masuk menggunakan email atau username yang sudah terdaftar.</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="EMAIL"
+        placeholder="EMAIL atau USERNAME"
         placeholderTextColor="#999"
         autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
+        value={credential}
+        onChangeText={setCredential}
       />
       <TextInput
         style={styles.input}

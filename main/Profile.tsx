@@ -1,5 +1,5 @@
 // src/main/Profile.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,23 +7,61 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import { supabase } from '../user/supabaseClient';
 
-type Props = {
-  navigation: any;
-};
+const PRIMARY = '#FFA800';
+const BORDER = '#FFCD5C';
 
-export default function Profile({ navigation }: Props) {
-  const username = 'capayamjago';
-  const email    = 'capayamjogacapcap@gmail.com';
-  const password = '•••••••';
+export default function Profile({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const onLogout = () => {
-    // clear token in AsyncStorage here if you use one...
-    // then pop back to the Auth flow
+  // 1. Fetch user from Supabase session
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        Alert.alert('Error', error.message);
+        setLoading(false);
+        return;
+      }
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+    getUser();
+  }, []);
+
+  // 2. Fetch username/profile from "profiles" table (if available)
+  useEffect(() => {
+    if (user?.id) {
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+        .then(({ data, error }) => {
+          if (data) setProfile(data);
+        });
+    }
+  }, [user]);
+
+  const onLogout = async () => {
+    await supabase.auth.signOut();
     navigation.getParent()?.replace('Auth');
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={PRIMARY} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,42 +84,32 @@ export default function Profile({ navigation }: Props) {
           </View>
         </View>
         <Text style={styles.greeting}>
-          Hello, <Text style={styles.username}>{username}!</Text>
+          Hello, <Text style={styles.username}>{profile?.display_name || user?.email?.split('@')[0] || 'User'}!</Text>
         </Text>
         <Text style={styles.subtitle}>
           Ingat, lebih baik mengelola keuangan dengan bijak daripada menyesal di kemudian hari.
         </Text>
       </View>
 
-      {/* Form Email & Password */}
+      {/* Form Email & Username */}
       <View style={styles.form}>
         <Text style={styles.label}>Email</Text>
         <View style={styles.inputRow}>
-          <TextInput style={styles.input} value={email} editable={false} />
-          <TouchableOpacity style={styles.changeBtn}>
-            <Text style={styles.changeTxt}>Ganti Email</Text>
-          </TouchableOpacity>
+          <TextInput style={styles.input} value={user?.email || ''} editable={false} />
         </View>
 
-        <Text style={[styles.label, { marginTop: 20 }]}>Password</Text>
+        <Text style={[styles.label, { marginTop: 20 }]}>Username</Text>
         <View style={styles.inputRow}>
           <TextInput
             style={styles.input}
-            value={password}
-            secureTextEntry
+            value={profile?.display_name || user?.email?.split('@')[0] || ''}
             editable={false}
           />
-          <TouchableOpacity style={styles.changeBtn}>
-            <Text style={styles.changeTxt}>Ganti Password</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
   );
 }
-
-const PRIMARY = '#FFA800';
-const BORDER  = '#FFCD5C';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
