@@ -4,8 +4,6 @@ import {
 } from 'react-native';
 import { Headphones } from 'lucide-react-native';
 import { supabase } from './supabaseClient';
-import GoogleLoginButton from './GoogleLoginButton';
-import GithubLoginButton from './GithubLoginButton';
 
 const PRIMARY = '#FFA800';
 
@@ -87,10 +85,6 @@ export default function Login({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={onLogin} disabled={loading}>
         {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.buttonTxt}>LOGIN</Text>}
       </TouchableOpacity>
-
-      {/* Social logins */}
-      <GoogleLoginButton navigation={navigation} />
-      <GithubLoginButton navigation={navigation} />
 
       <View style={styles.switchRow}>
         <Text>Belum punya akun? </Text>
